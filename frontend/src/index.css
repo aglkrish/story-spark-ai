@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-custom: #3b82f6;
   
@@ -24,6 +27,136 @@
 
 @utility glow {
   filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.motion-card {
+  transform: translateZ(0);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease;
+  will-change: transform;
+}
+
+.motion-card:hover {
+  transform: translate3d(0, -6px, 0);
+  box-shadow:
+    0 18px 48px rgba(15, 23, 42, 0.28),
+    0 0 28px rgba(59, 130, 246, 0.14);
+}
+
+.motion-card-subtle {
+  transform: translateZ(0);
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.motion-card-subtle:hover {
+  transform: translate3d(0, -3px, 0);
+  box-shadow:
+    0 14px 36px rgba(15, 23, 42, 0.22),
+    0 0 20px rgba(99, 102, 241, 0.12);
+}
+
+.motion-cta {
+  transform: translateZ(0);
+  transition:
+    transform 180ms ease,
+    box-shadow 220ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+  will-change: transform;
+}
+
+.motion-cta:hover {
+  transform: translate3d(0, -2px, 0) scale(1.01);
+}
+
+.motion-cta:active {
+  transform: translate3d(0, 0, 0) scale(0.98);
+}
+
+.motion-cta:disabled {
+  transform: none;
+  cursor: not-allowed;
+}
+
+.motion-icon {
+  transition: transform 200ms ease, color 200ms ease;
+}
+
+.motion-image {
+  transform: translateZ(0);
+  transition: transform 700ms ease;
+}
+
+.group:hover .motion-image {
+  transform: scale(1.045);
+}
+
+.magic-cursor-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.magic-cursor-dot,
+.magic-cursor-glow {
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  transform: translate3d(calc(var(--cursor-x, -120px) - 50%), calc(var(--cursor-y, -120px) - 50%), 0);
+}
+
+.magic-cursor-dot {
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(191, 219, 254, 0.85);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.96), rgba(96, 165, 250, 0.72) 45%, rgba(99, 102, 241, 0.35));
+  box-shadow:
+    0 0 14px rgba(96, 165, 250, 0.55),
+    0 0 28px rgba(129, 140, 248, 0.24);
+}
+
+.magic-cursor-glow {
+  width: 42px;
+  height: 42px;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.18), rgba(129, 140, 248, 0.08) 45%, transparent 70%);
+  filter: blur(1px);
+  opacity: 0.82;
+}
+
+.magic-cursor-sparkle {
+  position: fixed;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(147, 197, 253, 0.72) 40%, rgba(168, 85, 247, 0) 72%);
+  box-shadow: 0 0 16px rgba(147, 197, 253, 0.34);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.55);
+  animation: magic-sparkle-fade 760ms ease-out forwards;
+}
+
+@keyframes magic-sparkle-fade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+  }
+  18% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -110%) scale(1.35) rotate(34deg);
+  }
 }
 
 .hero-3d-scene {
@@ -460,4 +593,126 @@ body {
 html.dark body {
   background-color: #111827;
   color: white;
+}
+
+/* ── Premium Scroll FAB Styles ── */
+.scroll-fab-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  
+  /* Glassmorphism base styling */
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  color: #6366f1; /* Premium Indigo */
+  
+  /* Soft, deep glowing shadow matching the site's light mode theme */
+  box-shadow: 
+    0 10px 25px -5px rgba(99, 102, 241, 0.15),
+    0 8px 16px -6px rgba(99, 102, 241, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  
+  /* Transitions */
+  transition: 
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-fab-btn .scroll-icon {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  stroke-width: 2.5px;
+}
+
+/* Hover States (Light mode) */
+.scroll-fab-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #4f46e5;
+  box-shadow: 
+    0 12px 30px -5px rgba(99, 102, 241, 0.25),
+    0 0 12px 2px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Micro-animations for arrow slide on hover */
+.scroll-fab-btn-up:hover .scroll-icon {
+  transform: translateY(-3px);
+}
+
+.scroll-fab-btn-down:hover .scroll-icon {
+  transform: translateY(3px);
+}
+
+/* Active press effect */
+.scroll-fab-btn:active {
+  transform: translateY(1px) scale(0.95);
+  box-shadow: 
+    0 4px 12px -5px rgba(99, 102, 241, 0.2),
+    0 0 4px 1px rgba(99, 102, 241, 0.05);
+}
+
+/* ── Dark Mode Styles ── */
+html.dark .scroll-fab-btn {
+  /* Dark glassmorphism with subtle dark blue/indigo gradient feel */
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 27, 75, 0.65) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3); /* Violet glow border */
+  color: #c084fc; /* Light Violet/Purple */
+  
+  /* Glowing shadow matching the site's dark mode glow aesthetic */
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.5),
+    0 0 15px 1px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0px rgba(255, 255, 255, 0.1);
+}
+
+/* Hover States (Dark mode) */
+html.dark .scroll-fab-btn:hover {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(49, 46, 129, 0.8) 100%);
+  border-color: rgba(167, 139, 250, 0.6); /* brighter violet */
+  color: #e9d5ff; /* even brighter purple */
+  box-shadow: 
+    0 12px 30px -5px rgba(0, 0, 0, 0.6),
+    0 0 22px 4px rgba(139, 92, 246, 0.4);
+}
+
+/* Active states (Dark mode) */
+html.dark .scroll-fab-btn:active {
+  box-shadow: 
+    0 4px 12px -5px rgba(0, 0, 0, 0.5),
+    0 0 8px 1px rgba(139, 92, 246, 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .motion-card,
+  .motion-card:hover,
+  .motion-card-subtle,
+  .motion-card-subtle:hover,
+  .motion-cta,
+  .motion-cta:hover,
+  .motion-cta:active,
+  .group:hover .motion-image,
+  .magic-cursor-dot,
+  .magic-cursor-glow,
+  .magic-cursor-sparkle {
+    transform: none;
+  }
 }

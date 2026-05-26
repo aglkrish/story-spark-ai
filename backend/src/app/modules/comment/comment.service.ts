@@ -16,7 +16,10 @@ const createComment = async (
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
   }
-  const post = await Post.findOne({ _id: payload.postId });
+  const post = await Post.findOne({
+    _id: payload.postId,
+    isDeleted: { $ne: true },
+  });
   if (!post) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Post not found!");
   }
@@ -37,6 +40,11 @@ const createComment = async (
 };
 
 const getCommentsByPostId = async (postId: string) => {
+  const post = await Post.findOne({ _id: postId, isDeleted: { $ne: true } });
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
+  }
+
   const comments = await Comment.find({ postId, parentCommentId: null })
     .populate("userId", "name email")
     .populate({
@@ -68,6 +76,13 @@ const toggleCommentLike = async (commentId: string, token: ITokenPayload) => {
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Comment not found!");
+  }
+  const post = await Post.findOne({
+    _id: comment.postId,
+    isDeleted: { $ne: true },
+  });
+  if (!post) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
   }
   
   const hasLiked = comment.likes?.includes(user._id);

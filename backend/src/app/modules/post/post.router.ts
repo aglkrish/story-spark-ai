@@ -31,8 +31,9 @@ router.post(
   PostController.doFeaturedPosts
 );
 
-router.get("/:id", PostController.getSinglePost);
+
 router.get("/tag/:tag", PostController.getPostsByTag);
+router.get("/:id", PostController.getSinglePost);
 
 router.post(
   "/:id/bookmark",
@@ -43,6 +44,17 @@ router.post(
     ENUM_USER_ROLE.SUPER_ADMIN
   ),
   PostController.toggleBookmark
+);
+
+router.delete(
+  "/:id",
+  auth(
+    ENUM_USER_ROLE.USER,
+    ENUM_USER_ROLE.WRITER,
+    ENUM_USER_ROLE.ADMIN,
+    ENUM_USER_ROLE.SUPER_ADMIN
+  ),
+  PostController.deletePost
 );
 
 export const PostRouter = router;
