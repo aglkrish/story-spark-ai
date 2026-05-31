@@ -257,7 +257,7 @@ const UI_TEXT: Record<string, UiText> = {
     selectPrompt: "프롬프트 선택", characterLimit: "글자 수 제한 도달 - 생성할 수 없습니다", charactersRemaining: "글자 남음",
     shortcuts: "키보드 단축키", openHelp: "도움말 열기", closeHelp: "도움말 닫기", focusPrompt: "프롬프트에 초점",
     generateStory: "이야기 생성", publishStory: "이야기 게시", close: "닫기", freeLimitReached: "무료 한도 도달",
-    freeLimitMessage: "무료 이야기 생성 3회를 모두 사용했습니다. 계속하려면 로그인하세요.", continueBrowsing: "계속 둘러보기", 최근 프롬프트: "최근 프롬프트", usePrompt: "사용", delete: "삭제", clearAll: "모두 지우기", noRecentPrompts: "최근 프롬프트가 없습니다",
+    freeLimitMessage: "무료 이야기 생성 3회를 모두 사용했습니다. 계속하려면 로그인하세요.", continueBrowsing: "계속 둘러보기", recentPrompts: "최근 프롬프트", usePrompt: "사용", delete: "삭제", clearAll: "모두 지우기", noRecentPrompts: "최근 프롬프트가 없습니다",
   },
   Bengali: {
     back: "ফিরে যান", freeAccess: "৩টি অনুরোধের জন্য বিনামূল্যে ব্যবহার", login: "লগ ইন", forMore: "করে আরও পান!",
@@ -321,33 +321,33 @@ const TONES = [
     inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
   },
   {
+    label: "Whimsical",
+    emoji: "🌈",
+    activeClass: "bg-sky-500/20 text-sky-300 border-sky-500/60 shadow-sky-500/20",
+    inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
+  },
+  {
+    label: "Dramatic",
+    emoji: "🎬",
+    activeClass: "bg-red-500/20 text-red-300 border-red-500/60 shadow-red-500/20",
+    inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
+  },
+  {
     label: "Humorous",
     emoji: "😄",
     activeClass: "bg-yellow-500/20 text-yellow-300 border-yellow-500/60 shadow-yellow-500/20",
     inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
   },
   {
-    label: "Romantic",
-    emoji: "💕",
-    activeClass: "bg-pink-500/20 text-pink-300 border-pink-500/60 shadow-pink-500/20",
-    inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
-  },
-  {
-    label: "Epic",
-    emoji: "⚔️",
+    label: "Suspenseful",
+    emoji: "😰",
     activeClass: "bg-orange-500/20 text-orange-300 border-orange-500/60 shadow-orange-500/20",
     inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
   },
   {
-    label: "Mysterious",
-    emoji: "🔮",
-    activeClass: "bg-purple-500/20 text-purple-300 border-purple-500/60 shadow-purple-500/20",
-    inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
-  },
-  {
-    label: "Children's",
-    emoji: "🧸",
-    activeClass: "bg-green-500/20 text-green-300 border-green-500/60 shadow-green-500/20",
+    label: "Heartwarming",
+    emoji: "🥰",
+    activeClass: "bg-pink-500/20 text-pink-300 border-pink-500/60 shadow-pink-500/20",
     inactiveClass: "bg-white/5 text-gray-400 border-transparent hover:bg-white/10 hover:text-gray-200",
   },
 ] as const;
@@ -420,13 +420,13 @@ const StoriesComponent = () => {
   const [generateFreeModel] = useGenerateFreeModelMutation();
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
   const [showHelpModal, setShowHelpModal] = useState(false);
- const [selectedGenre, setSelectedGenre] = useState<string>(
+  const [selectedGenre, setSelectedGenre] = useState<string>(
   draft?.genre
-    ? (GENRES.find((g) => g.name === draft.genre || g.value === draft.genre)?.value ?? "")
-    : "",
+    ? (GENRES.find((g) => g.name === draft.genre || g.value === draft.genre)?.value ?? "🧙 Fantasy")
+    : "🧙 Fantasy",
 );
   const [selectedLength, setSelectedLength] = useState<string>(draft?.length || "medium");
-  const [selectedTone, setSelectedTone] = useState<ToneLabel | "">(draft?.tone || "");
+  const [selectedTone, setSelectedTone] = useState<ToneLabel | "">(draft?.tone || "Dramatic");
   const [textareaValue, setTextareaValue] = useState<string>(location.state?.prompt || draft?.prompt || "");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(draft?.language || "English");
@@ -587,10 +587,10 @@ useEffect(() => {
           : data.prompt,
         wordLength:
           selectedLength === "short"
-            ? 150
+            ? 175
             : selectedLength === "long"
-            ? 500
-            : 250,
+            ? 800
+            : 450,
         language: selectedLanguage,
         tone: selectedTone || undefined,
       };
