@@ -1,5 +1,6 @@
 // FAQ Structure
 export interface FAQItem {
+  id: string;
   question: string;
   answer: string;
   keywords: string[];
@@ -43,11 +44,13 @@ export interface TroubleshootItem {
 // Data Sets
 export const FAQ_ITEMS: FAQItem[] = [
   {
+    id: "faq-generate-stories",
     question: "How does StorySparkAI generate stories?",
     answer: "StorySparkAI uses advanced language models to interpret your prompt, style preferences, and narrative depth parameters to build a cohesive text layout structure automatically.",
     keywords: ["generate", "story", "ai", "how"]
   },
   {
+    id: "faq-export-stories",
     question: "Can I export my stories?",
     answer: "Yes, you can save and export your generated works into Markdown formatting or plain text documents directly from your workspace dashboard panel.",
     keywords: ["export", "download", "markdown", "save"]
@@ -126,7 +129,9 @@ export const TROUBLESHOOT_ITEMS: TroubleshootItem[] = [
   }
 ];
 
+
 // Utility Functions
+
 export const scrollToSection = (id: string) => {
   const element = document.getElementById(id);
   if (element) {

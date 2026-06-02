@@ -1,10 +1,12 @@
+
 import { FC, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { HELP_SECTIONS } from "../help_center.utils";
 
 const HelpSidebar: FC = () => {
+
   const [activeSection, setActiveSection] = useState<string>(
-    HELP_SECTIONS[0]?.id ?? "categories"
+    HELP_SECTIONS[0]?.id ?? "help-categories"
   );
 
   useEffect(() => {
@@ -21,8 +23,10 @@ const HelpSidebar: FC = () => {
         }
       },
       {
+
         rootMargin: "-20% 0px -55% 0px",
         threshold: [0.1, 0.25, 0.5],
+
       }
     );
 
@@ -34,6 +38,8 @@ const HelpSidebar: FC = () => {
     const handleScroll = () => {
       const scrollBottom = window.innerHeight + window.scrollY;
       const documentHeight = document.documentElement.scrollHeight;
+
+
 
       if (scrollBottom >= documentHeight - 80) {
         setActiveSection("support-links-section");
@@ -51,7 +57,6 @@ const HelpSidebar: FC = () => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (!element) return;
-
     const yOffset = -100;
     const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
     window.scrollTo({ top: y, behavior: "smooth" });
@@ -61,25 +66,31 @@ const HelpSidebar: FC = () => {
     <>
       {/* Desktop sticky sidebar */}
       <nav className="hidden lg:block w-72 flex-shrink-0" aria-label="Help center sections">
-        <div className="sticky top-24 space-y-5">
+        <div className="sticky top-24">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="rounded-[2rem] border border-slate-200/70 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 backdrop-blur-2xl shadow-xl p-6"
+            className="relative overflow-hidden rounded-[2rem] border border-slate-200/70 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 backdrop-blur-2xl shadow-xl p-6"
           >
-            <div className="mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-200 dark:border-blue-500/20 mb-4">
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                <span className="text-xs font-semibold tracking-wide uppercase text-blue-700 dark:text-blue-300">
-                  Quick Navigation
-                </span>
+            <div className="absolute -top-16 -right-16 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute inset-0 rounded-[2rem] border border-white/30 dark:border-white/5 pointer-events-none" />
+
+            <div className="relative z-10">
+              <div className="mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-200 dark:border-blue-500/20 mb-4">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-xs font-semibold tracking-wide uppercase text-blue-700 dark:text-blue-300">
+                    Quick Navigation
+                  </span>
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Help Center</h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                  Navigate through guides, troubleshooting, setup instructions, and support resources.
+                </p>
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Help Center</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                Browse guides, troubleshooting tips, setup instructions, and support resources.
-              </p>
-            </div>
+
 
             <div className="space-y-3">
               {HELP_SECTIONS.map((section) => {
@@ -127,23 +138,25 @@ const HelpSidebar: FC = () => {
                   <div>
                     <h3 className="font-bold text-slate-800 dark:text-white">Need More Help?</h3>
                     <p className="text-sm text-slate-600 dark:text-slate-400">Contact support</p>
+
                   </div>
+                  <button
+                    onClick={() => scrollToSection("support-links-section")}
+                    className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-blue-500/20"
+                  >
+                    Support Links
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => scrollToSection("support-links-section")}
-                  className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-blue-500/20"
-                >
-                  Support Links
-                </button>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </nav>
 
+
       {/* Mobile sticky nav */}
       <nav className="lg:hidden sticky top-0 z-20 -mx-4 px-4 py-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b border-slate-200 dark:border-white/10 mb-8" aria-label="Help center sections">
+
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
           {HELP_SECTIONS.map((section) => (
             <button

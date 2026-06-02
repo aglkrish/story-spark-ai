@@ -4,6 +4,7 @@ import { User } from "../user/user.model";
 import { IPost, IPostPayload, IPostSearchFields } from "./post.interface";
 import httpStatus from "http-status";
 import { Post } from "./post.model";
+import { Bookmark } from "../bookmark/bookmark.model";
 import { StoryVersionService } from "../story_version/story_version.service";
 import {
   IGenericResponse,
@@ -13,14 +14,6 @@ import paginationHelper from "../../../utils/pagination_helper";
 import { postSearchFields } from "./post.constant";
 import { SortOrder } from "mongoose";
 import { GamificationService } from "../gamification/gamification.service";
-
-// Assuming your project has AI and Quota modules structured like this:
-// import { QuotaService } from "../quota/quota.service";
-// import { AIModelService } from "../ai_model/ai_model.service";
-
-const MAX_SEARCH_TERM_LENGTH = 100;
-const escapeRegex = (str: string) =>
-  str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const createPost = async (payload: IPostPayload, token: ITokenPayload) => {
   const { email, role } = token;
@@ -40,14 +33,14 @@ const createPost = async (payload: IPostPayload, token: ITokenPayload) => {
       author: user._id,
       updatedBy: user._id,
     });
-    if (res && res.isPublished) {
-      user.postsCount += 1;
-      await user.save();
-      GamificationService.addXp(String(user._id), 50, "CREATED_POST").catch(console.error);
-      if (user.postsCount === 1) {
-        GamificationService.awardBadge(String(user._id), "First Story").catch(console.error);
+      if (res && res.isPublished) {
+        user.postsCount += 1;
+        await user.save();
+        GamificationService.addXp(String(user._id), 50, "CREATED_POST").catch(console.error);
+        if (user.postsCount === 1) {
+          GamificationService.awardBadge(String(user._id), "First Story").catch(console.error);
+        }
       }
-    }
     return res;
   } catch (error) {
     throw new ApiError(
@@ -66,24 +59,33 @@ const getPosts = async (
     filters;
   const andCondition: Record<string, unknown>[] = [
     { isDeleted: { $ne: true } },
+    { isPublished: true },
   ];
 
- if (searchTerm) {
-  const safeSearchTerm = escapeRegex(
-    searchTerm.trim().slice(0, MAX_SEARCH_TERM_LENGTH)
-  );
+  if (searchTerm) {
+    const safeSearchTerm = escapeRegex(
+      searchTerm.trim().slice(0, MAX_SEARCH_TERM_LENGTH)
+    );
 
-  if (safeSearchTerm) {
+    if (safeSearchTerm) {
+      andCondition.push({
+        $or: postSearchFields.map((field) => ({
+          [field]: {
+            $regex: safeSearchTerm,
+            $options: "i",
+          },
+        })),
+      });
+    }
     andCondition.push({
       $or: postSearchFields.map((field) => ({
         [field]: {
-          $regex: safeSearchTerm,
+          $regex: searchTerm,
           $options: "i",
         },
       })),
     });
   }
-}
 
   if (trendingTopic) {
     andCondition.push({
@@ -134,12 +136,12 @@ const getPosts = async (
     .sort(sortCondition)
     .skip(skip)
     .limit(limit)
-    .populate("author", "name createdAt profile.bio")
+    .populate("author", "name email createdAt")
     .populate({
       path: "reactions",
-      populate: { path: "userId", select: "_id" },
+      populate: { path: "userId", select: "email" },
     })
-    .populate("bookmarks", "_id");
+    .populate("bookmarks", "email");
   const total = await Post.countDocuments(whereCondition);
   return {
     meta: {
@@ -197,8 +199,7 @@ const getPublishedPostsByAuthor = async (
     .populate({
       path: "reactions",
       populate: { path: "userId", select: "_id" },
-    })
-    .populate("bookmarks", "_id");
+    });
   const total = await Post.countDocuments(whereCondition);
 
   return {
@@ -213,17 +214,15 @@ const getPublishedPostsByAuthor = async (
 
 const getLatestPosts = async () => {
   try {
-    const res = await Post.find({ isDeleted: { $ne: true } })
+    const res = await Post.find({ isDeleted: { $ne: true }, isPublished: true })
       .sort({ createdAt: -1 })
-      .limit(3)
-      .populate("author", "name email createdAt")
       .limit(50)
-      .populate("author", "name createdAt profile.bio")
+      .populate("author", "name email createdAt")
       .populate({
         path: "reactions",
-        populate: { path: "userId", select: "_id" },
+        populate: { path: "userId", select: "email" },
       })
-      .populate("bookmarks", "_id");
+      .populate("bookmarks", "email");
     return res;
   } catch (error) {
     throw new ApiError(
@@ -238,17 +237,16 @@ const getFeaturedPosts = async () => {
     const res = await Post.find({
       isFeaturedPost: true,
       isDeleted: { $ne: true },
+      isPublished: true,
     })
       .sort({ createdAt: -1, updatedBy: -1 })
-      .limit(3)
-      .populate("author", "name email createdAt")
       .limit(10)
-      .populate("author", "name createdAt profile.bio")
+      .populate("author", "name email createdAt")
       .populate({
         path: "reactions",
-        populate: { path: "userId", select: "_id" },
+        populate: { path: "userId", select: "email" },
       })
-      .populate("bookmarks", "_id");
+      .populate("bookmarks", "email");
     return res;
   } catch (error) {
     throw new ApiError(
@@ -276,40 +274,35 @@ const doFeaturedPosts = async (postId: string) => {
 
 const getSinglePost = async (id: string) => {
   const postById = await Post.findOne({ _id: id, isDeleted: { $ne: true } })
-    .populate("author", "name createdAt profile.bio")
+    .populate("author", "name email createdAt")
     .populate({
       path: "reactions",
-      populate: { path: "userId", select: "_id" },
+      populate: { path: "userId", select: "email" },
     })
-    .populate("bookmarks", "_id");
+    .populate("bookmarks", "email");
   if (!postById) {
     throw new ApiError(httpStatus.NOT_FOUND, "Post not found!");
   }
   return postById;
 };
 
-  const getPostsByTag = async (tag: string, excludeId?: string) => {
-
+const getPostsByTag = async (tag: string, excludeId?: string) => {
   if (!tag) {
     return [];
   }
 
   const query: any = { tag, isDeleted: { $ne: true } };
-
   if (excludeId) {
     query._id = { $ne: excludeId };
   }
-
   const result = await Post.find(query)
-    .limit(3)
-    .populate("author", "name email createdAt")
     .limit(2)
-    .populate("author", "name createdAt profile.bio")
+    .populate("author", "name email createdAt")
     .populate({
       path: "reactions",
-      populate: { path: "userId", select: "_id" },
+      populate: { path: "userId", select: "email" },
     })
-    .populate("bookmarks", "_id");
+    .populate("bookmarks", "email");
   return result;
 };
 
@@ -319,10 +312,15 @@ const toggleBookmark = async (postId: string, token: ITokenPayload) => {
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
   }
+
+  const postExists = await Post.exists({ _id: postId, isDeleted: { $ne: true } });
+  if (!postExists) {
   const post = await Post.findOne({ _id: postId, isDeleted: { $ne: true } });
+
   if (!post) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Post not found!");
   }
+  
   // Check bookmark status atomically via a DB query instead of loading the full document
   const isBookmarked = await Post.exists({ _id: postId, bookmarks: user._id });
 
@@ -341,7 +339,7 @@ const toggleBookmark = async (postId: string, token: ITokenPayload) => {
     );
     return { message: "Bookmark added", bookmarked: true };
   }
-}
+};
 
 const updatePost = async (
   postId: string,
@@ -419,12 +417,11 @@ const deletePost = async (postId: string, token: ITokenPayload) => {
     await user.save();
   }
 
+  // Clean up associated bookmarks when story post is soft-deleted
+  await Bookmark.deleteMany({ storyId: postId });
+
   return post;
 };
-
-/* ============================================================
-   PATCHED SERVICES — GSSoC '26 AI VARIATION SYSTEM & QUOTAS
-   ============================================================ */
 
 const remixStory = async (postId: string, prompt: string, token: ITokenPayload) => {
   const user = await User.findOne({ email: token.email });
@@ -437,11 +434,6 @@ const remixStory = async (postId: string, prompt: string, token: ITokenPayload) 
     throw new ApiError(httpStatus.NOT_FOUND, "Original story post not found!");
   }
 
-  // Enforces data consistency by decrementing/reserving 1 credit balance mapping
-  // If your project uses an external service class call, invoke it here:
-  // await QuotaService.reserveUserQuota(user._id, 1);
-  
-  // Place your real AI model generation text manipulation calls here
   const remixedContent = `[AI Remixed Version based on prompt: "${prompt}"]\n\n${originalPost.content}`;
 
   const res = await Post.create({
@@ -471,10 +463,6 @@ const translateStory = async (postId: string, language: string, token: ITokenPay
     throw new ApiError(httpStatus.NOT_FOUND, "Original story post not found!");
   }
 
-  // Decrement/Reserve quota allocation block
-  // await QuotaService.reserveUserQuota(user._id, 1);
-
-  // Place your real language model translation core handler services here
   const translatedContent = `[Translated to ${language}]\n\n${originalPost.content}`;
 
   const res = await Post.create({
@@ -493,6 +481,11 @@ const translateStory = async (postId: string, language: string, token: ITokenPay
   return res;
 };
 
+const getGenres = async (): Promise<string[]> => {
+  const genres = await Post.distinct("tag", { isDeleted: { $ne: true }, tag: { $nin: [null, ""] } });
+  return genres.sort();
+};
+
 export const PostService = {
   createPost,
   getPosts,
@@ -508,3 +501,8 @@ export const PostService = {
   remixStory,       // Exposed service for AI story variations
   translateStory,   // Exposed service for localized modifications
 };
+  remixStory,
+  translateStory,
+  getGenres,
+};
+

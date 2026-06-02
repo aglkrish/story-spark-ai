@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -476,24 +476,56 @@
   }
 }
 
+@keyframes hero-title-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .hero-gradient-text {
   font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.75rem, 8vw, 6.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: 0;
   background: linear-gradient(
-    270deg,
-    #60a5fa, /* blue */
-    #a78bfa, /* violet */
-    #f472b6, /* pink */
-    #fb923c, /* orange */
-    #34d399, /* emerald */
-    #38bdf8, /* sky */
-    #818cf8, /* indigo */
-    #60a5fa  /* blue again for seamless loop */
+    120deg,
+    #ffffff 0%,
+    #bfdbfe 22%,
+    #60a5fa 45%,
+    #c084fc 70%,
+    #f9a8d4 100%
   );
-  background-size: 300% 300%;
+  background-size: 220% 220%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: hero-gradient-shift 6s ease infinite;
+  text-shadow:
+    0 0 18px rgba(96, 165, 250, 0.45),
+    0 0 42px rgba(192, 132, 252, 0.25),
+    0 8px 30px rgba(2, 6, 23, 0.75);
+  filter: drop-shadow(0 2px 8px rgba(15, 23, 42, 0.85));
+  animation:
+    hero-title-entrance 0.8s ease-out both,
+    hero-gradient-shift 6s ease infinite;
+  transition:
+    filter 250ms ease,
+    text-shadow 250ms ease,
+    transform 250ms ease;
+}
+
+.hero-gradient-text:hover {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 4px 14px rgba(96, 165, 250, 0.75));
+  text-shadow:
+    0 0 24px rgba(96, 165, 250, 0.65),
+    0 0 56px rgba(192, 132, 252, 0.35),
+    0 10px 34px rgba(2, 6, 23, 0.85);
 }
 
 /* Live badge floating animation */
@@ -824,11 +856,11 @@ html.dark body {
   }
 }
 
-/* ═══════════════════════════════════════════════
-   CONTACT PAGE — Premium Redesign
-═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CONTACT PAGE â€” Premium Redesign
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Section shell ── */
+/* â”€â”€ Section shell â”€â”€ */
 .contact-section {
   min-height: 100vh;
   color: #0f172a;
@@ -850,7 +882,7 @@ html.dark .contact-section {
     linear-gradient(180deg, #020617 0%, #0b1120 100%);
 }
 
-/* ── Layered ambient background ── */
+/* â”€â”€ Layered ambient background â”€â”€ */
 .contact-bg-mesh {
   position: absolute;
   inset: 0;
@@ -919,7 +951,7 @@ html.dark .contact-grid-overlay {
     linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
 }
 
-/* ── Staggered entrance ── */
+/* â”€â”€ Staggered entrance â”€â”€ */
 .contact-col-left {
   animation: fade-in 0.6s ease-out both;
 }
@@ -928,12 +960,12 @@ html.dark .contact-grid-overlay {
   animation: fade-in 0.6s 0.18s ease-out both;
 }
 
-/* ── Badge ── */
+/* â”€â”€ Badge â”€â”€ */
 .contact-badge {
   animation: fade-in 0.5s ease-out both;
 }
 
-/* ── Heading gradient ── */
+/* â”€â”€ Heading gradient â”€â”€ */
 .contact-heading-gradient {
   background: linear-gradient(115deg, #60a5fa 0%, #a78bfa 45%, #f472b6 100%);
   background-size: 200% 200%;
@@ -943,7 +975,7 @@ html.dark .contact-grid-overlay {
   animation: border-gradient 5s ease infinite;
 }
 
-/* ── Accent bar ── */
+/* â”€â”€ Accent bar â”€â”€ */
 .contact-accent-bar {
   height: 3px;
   width: 56px;
@@ -953,7 +985,7 @@ html.dark .contact-grid-overlay {
   animation: border-gradient 4s ease infinite;
 }
 
-/* ── Stat cards ── */
+/* â”€â”€ Stat cards â”€â”€ */
 .contact-stat-card {
   transition:
     border-color 200ms ease,
@@ -974,7 +1006,7 @@ html.dark .contact-stat-card:hover {
   box-shadow: 0 18px 40px rgba(2, 6, 23, 0.35);
 }
 
-/* ── Channel links ── */
+/* â”€â”€ Channel links â”€â”€ */
 .contact-channel-link {
   transform: translateZ(0);
   transition:
@@ -996,7 +1028,7 @@ html.dark .contact-channel-link:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255,255,255,0.04);
 }
 
-/* ── Illustration ── */
+/* â”€â”€ Illustration â”€â”€ */
 .contact-illustration {
   margin-top: 2.5rem;
 }
@@ -1013,7 +1045,7 @@ html.dark .contact-channel-link:hover {
   pointer-events: none;
 }
 
-/* ── Form shell (outer positioning wrapper) ── */
+/* â”€â”€ Form shell (outer positioning wrapper) â”€â”€ */
 .contact-form-shell {
   position: relative;
   border-radius: 1.5rem;
@@ -1111,8 +1143,9 @@ html.dark .contact-form-top-line {
   );
 }
 
-/* ── Input fields ── */
+/* â”€â”€ Input fields â”€â”€ */
 .contact-input {
+  box-sizing: border-box;
   outline: none;
   border: 1px solid rgba(148, 163, 184, 0.28);
   background: rgba(255, 255, 255, 0.88);
@@ -1174,7 +1207,7 @@ html.dark .contact-input::placeholder {
   line-height: 1.35;
 }
 
-/* ── Submit button ── */
+/* â”€â”€ Submit button â”€â”€ */
 .contact-submit-btn {
   transform: translateZ(0);
   transition:
@@ -1221,7 +1254,7 @@ html.dark .contact-input::placeholder {
     0 0 0 1px rgba(139, 92, 246, 0.35);
 }
 
-/* ── Reduced motion ── */
+/* â”€â”€ Reduced motion â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   .contact-col-left,
   .contact-col-right,
@@ -1251,7 +1284,7 @@ html.dark .contact-input::placeholder {
   }
 }
 
-/* ── Story Timeline Animations ── */
+/* â”€â”€ Story Timeline Animations â”€â”€ */
 @keyframes slideIn {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
@@ -1265,7 +1298,7 @@ html, body {
   touch-action: pan-x pan-y;
 }
 
-/* ── View Transitions API for Theme Toggle ── */
+/* â”€â”€ View Transitions API for Theme Toggle â”€â”€ */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -1279,7 +1312,7 @@ html, body {
 }
 
 
-/* ─── Scroll-to-Top Button ─────────────────────────────── */
+/* â”€â”€â”€ Scroll-to-Top Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .scroll-to-top-btn {
   position: fixed;
   bottom: 2rem;
@@ -1319,7 +1352,7 @@ html, body {
     font-size: 1rem;
   }
 }
-=======
+
 /* Navbar Container */
 .navbar {
   display: flex;
@@ -1404,4 +1437,3 @@ html, body {
     padding: 0.5rem 0;
   }
 }
-
