@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Globe, GitPullRequest, Users } from "lucide-react";
 import ImageFallback from "../ImageFallback";
-import { useEffect, useRef, useState, useCallback } from "react";
+
 import {
   Globe,
   GitPullRequest,
@@ -95,9 +95,8 @@ const ParticleField = () => {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `hsla(240, 60%, 70%, ${
-              0.06 * (1 - dist / 100)
-            })`;
+            ctx.strokeStyle = `hsla(240, 60%, 70%, ${0.06 * (1 - dist / 100)
+              })`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -291,9 +290,8 @@ const ContributorCard = ({
         background: isTop3
           ? `linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,27,75,0.7) 50%, rgba(15,23,42,0.9) 100%)`
           : `linear-gradient(135deg, rgba(15,23,42,0.8) 0%, rgba(20,20,50,0.5) 100%)`,
-        border: `1px solid ${
-          isTop3 ? rank!.borderColor : "rgba(148,163,184,0.08)"
-        }`,
+        border: `1px solid ${isTop3 ? rank!.borderColor : "rgba(148,163,184,0.08)"
+          }`,
         transformStyle: "preserve-3d",
         transition: "box-shadow 0.3s ease",
       }}
@@ -322,11 +320,10 @@ const ContributorCard = ({
       {/* Avatar */}
       <div className="relative mb-5" style={{ transform: "translateZ(30px)" }}>
         <div
-          className={`absolute inset-[-4px] rounded-full transition-opacity duration-500 ${
-            isTop3
+          className={`absolute inset-[-4px] rounded-full transition-opacity duration-500 ${isTop3
               ? "opacity-40 group-hover:opacity-70"
               : "opacity-0 group-hover:opacity-30"
-          }`}
+            }`}
           style={{
             background: isTop3 ? rank!.glow : "rgba(99,102,241,0.4)",
             filter: "blur(12px)",
@@ -881,29 +878,29 @@ const ContributorsComponent = () => {
                 </div>
               </motion.a>
             ))}
-                <Code2
-                  size={20}
-                  className="transition-transform duration-300 group-hover:rotate-12"
-                />
-                Start Contributing
-                <ExternalLink
-                  size={16}
-                  className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-                />
-              </a>
-            </div>
+              <Code2
+                size={20}
+                className="transition-transform duration-300 group-hover:rotate-12"
+              />
+              Start Contributing
+              <ExternalLink
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+              />
+            </a>
           </div>
         </div>
       </div>
+    </div>
 
-      {/* Keyframes */}
-      <style>{`
+      {/* Keyframes */ }
+  <style>{`
         @keyframes contributorsGradientShift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 
