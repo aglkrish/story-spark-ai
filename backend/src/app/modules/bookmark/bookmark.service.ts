@@ -12,43 +12,26 @@ const toggleBookmark = async (storyId: string, token: ITokenPayload) => {
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
   }
-  const post = await Post.findById(storyId);
+  const post = await Post.findOne({
+    _id: storyId,
+    isDeleted: { $ne: true },
+  });
   if (!post) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Story not found!");
   }
 
-  // Check if bookmark already exists
   const existingBookmark = await Bookmark.findOne({
     userId: user._id,
     storyId: post._id,
   });
 
   if (existingBookmark) {
-    // Remove bookmark
     await Bookmark.findByIdAndDelete(existingBookmark._id);
-    
-    // Synchronize with Post.bookmarks array
-    post.bookmarks = post.bookmarks || [];
-    post.bookmarks = post.bookmarks.filter(
-      (uId) => uId && uId.toString() !== user._id.toString()
-    );
-    await post.save();
-
+    await Post.findByIdAndUpdate(post._id, { $inc: { bookmarksCount: -1 } });
     return { message: "Bookmark removed", isBookmarked: false };
   } else {
-    // Add bookmark
-    await Bookmark.create({
-      userId: user._id,
-      storyId: post._id,
-    });
-
-    // Synchronize with Post.bookmarks array
-    post.bookmarks = post.bookmarks || [];
-    if (!post.bookmarks.some((uId) => uId && uId.toString() === user._id.toString())) {
-      post.bookmarks.push(user._id);
-    }
-    await post.save();
-
+    await Bookmark.create({ userId: user._id, storyId: post._id });
+    await Post.findByIdAndUpdate(post._id, { $inc: { bookmarksCount: 1 } });
     return { message: "Story bookmarked!", isBookmarked: true };
   }
 };
@@ -66,10 +49,46 @@ const getBookmarks = async (
 
   const skip = (page - 1) * limit;
 
-  // Find user's bookmarks
-  const bookmarks = await Bookmark.find({ userId: user._id })
-    .skip(skip)
-    .limit(limit)
+  // Count total bookmarks pointing to non-deleted stories
+  const totalAgg = await Bookmark.aggregate([
+    { $match: { userId: user._id } },
+    {
+      $lookup: {
+        from: "posts",
+        localField: "storyId",
+        foreignField: "_id",
+        as: "story",
+      },
+    },
+    { $unwind: "$story" },
+    { $match: { "story.isDeleted": { $ne: true } } },
+    { $count: "count" }
+  ]);
+  const total = totalAgg[0]?.count || 0;
+
+  // Retrieve paginated active bookmark IDs
+  const activeBookmarkDocs = await Bookmark.aggregate([
+    { $match: { userId: user._id } },
+    {
+      $lookup: {
+        from: "posts",
+        localField: "storyId",
+        foreignField: "_id",
+        as: "story",
+      },
+    },
+    { $unwind: "$story" },
+    { $match: { "story.isDeleted": { $ne: true } } },
+    { $sort: { createdAt: -1 } },
+    { $skip: skip },
+    { $limit: limit },
+    { $project: { _id: 1 } },
+  ]);
+
+  const activeBookmarkIds = activeBookmarkDocs.map((doc) => doc._id);
+
+  // Fetch full details and populate nested paths
+  const bookmarks = await Bookmark.find({ _id: { $in: activeBookmarkIds } })
     .populate({
       path: "storyId",
       populate: [
@@ -78,11 +97,16 @@ const getBookmarks = async (
           path: "reactions",
           populate: { path: "userId", select: "email" },
         },
-        { path: "bookmarks", select: "email" },
       ],
     });
 
-  const total = await Bookmark.countDocuments({ userId: user._id });
+  // Maintain the sorted order from aggregation
+  const activeBookmarkIdStrings = activeBookmarkIds.map((id) => id.toString());
+  bookmarks.sort(
+    (a, b) =>
+      activeBookmarkIdStrings.indexOf(a._id.toString()) -
+      activeBookmarkIdStrings.indexOf(b._id.toString())
+  );
 
   // Map to extract only the fully populated story objects, filtering out any orphaned references
   const bookmarkedStories = bookmarks
@@ -120,19 +144,14 @@ const deleteBookmark = async (storyId: string, token: ITokenPayload) => {
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User not found!");
   }
-  const post = await Post.findById(storyId);
 
   const deletedBookmark = await Bookmark.findOneAndDelete({
     userId: user._id,
     storyId: new Types.ObjectId(storyId),
   });
 
-  if (deletedBookmark && post) {
-    post.bookmarks = post.bookmarks || [];
-    post.bookmarks = post.bookmarks.filter(
-      (uId) => uId && uId.toString() !== user._id.toString()
-    );
-    await post.save();
+  if (deletedBookmark) {
+    await Post.findByIdAndUpdate(storyId, { $inc: { bookmarksCount: -1 } });
   }
 
   return { message: "Bookmark removed" };

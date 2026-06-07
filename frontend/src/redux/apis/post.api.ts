@@ -20,6 +20,16 @@ const postApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.post, tagTypes.user],
     }),
 
+    updatePost: build.mutation({
+      query: (arg: { id: string; data: Record<string, unknown> }) => ({
+        url: `/${POST_URL}/${arg.id}`,
+        method: "PATCH",
+        data: arg.data,
+      }),
+      invalidatesTags: [tagTypes.post],
+    }),
+
+
     getPostLists: build.query({
       query: (arg: Record<string, string | number>) => ({
         url: `/${POST_URL}/lists`,
@@ -43,6 +53,35 @@ const postApi = baseApi.injectEndpoints({
         return {
           status: response?.status,
           message: "Unable to fetch posts. Please try again later.",
+        };
+      },
+
+      providesTags: [tagTypes.post],
+    }),
+
+    getMyPublishedStories: build.query({
+      query: (arg: Record<string, string | number>) => ({
+        url: `/${POST_URL}/my-published-stories`,
+        method: "GET",
+        params: arg,
+      }),
+
+      transformResponse: (response: {
+        data: Post[];
+        meta: IMeta;
+        message: string;
+      }) => {
+        return {
+          posts: response.data,
+          meta: response.meta,
+          message: response.message,
+        };
+      },
+
+      transformErrorResponse: (response: QueryErrorResponse) => {
+        return {
+          status: response?.status,
+          message: "Unable to fetch your published stories.",
         };
       },
 
@@ -111,10 +150,7 @@ const postApi = baseApi.injectEndpoints({
         method: "GET",
       }),
 
-      transformResponse: (response: {
-        data: Post;
-        message: string;
-      }) => {
+      transformResponse: (response: { data: Post; message: string }) => {
         return response.data;
       },
 
@@ -136,10 +172,7 @@ const postApi = baseApi.injectEndpoints({
         params: arg.excludeId ? { excludeId: arg.excludeId } : {},
       }),
 
-      transformResponse: (response: {
-        data: Post[];
-        message: string;
-      }) => {
+      transformResponse: (response: { data: Post[]; message: string }) => {
         return response.data;
       },
 
@@ -152,14 +185,40 @@ const postApi = baseApi.injectEndpoints({
 
       providesTags: [tagTypes.post],
     }),
+
+    deletePost: build.mutation({
+      query: (id: string) => ({
+        url: `/${POST_URL}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [
+        tagTypes.post,
+        tagTypes.user,
+        tagTypes.comment,
+        tagTypes.bookmark,
+      ],
+    }),
+
+    getGenres: build.query<string[], void>({
+      query: () => ({
+        url: `/${POST_URL}/genres`,
+        method: "GET",
+      }),
+      transformResponse: (response: { data: string[] }) => response.data,
+      providesTags: [tagTypes.post],
+    }),
   }),
 });
 
 export const {
   useCreatePostMutation,
+  useUpdatePostMutation,
   useGetPostListsQuery,
+  useGetMyPublishedStoriesQuery,
   useGetLatestListsQuery,
   useGetFeaturedListsQuery,
   useGetPostByIdQuery,
   useGetPostByTagQuery,
+  useDeletePostMutation,
+  useGetGenresQuery,
 } = postApi;

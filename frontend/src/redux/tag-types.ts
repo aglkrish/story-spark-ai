@@ -6,6 +6,8 @@ export enum tagTypes {
   comment = "comment",
   notification = "notification",
   bookmark = "bookmark",
+  WriterApplication = "WriterApplication",
+  StoryVersion = "StoryVersion",
 }
 
 export const tagTypesList: string[] = [
@@ -16,4 +18,6 @@ export const tagTypesList: string[] = [
   tagTypes.comment,
   tagTypes.notification,
   tagTypes.bookmark,
+  tagTypes.WriterApplication,
+  tagTypes.StoryVersion,
 ];
