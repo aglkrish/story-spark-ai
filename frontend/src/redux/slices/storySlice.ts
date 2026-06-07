@@ -27,10 +27,23 @@ const storySlice = createSlice({
     setStory(state, action: PayloadAction<Story>) {
       state.currentStory = action.payload;
 
-      localStorage.setItem(
-        "story",
-        JSON.stringify(action.payload)
-      );
+      try {
+        const userId = action.payload.userId || "guest";
+        const storageKey = `story_${userId}`;
+        
+        const safeData = {
+          version: "1.0",
+          data: action.payload
+        };
+        
+        localStorage.setItem(storageKey, JSON.stringify(safeData));
+      } catch (error: any) {
+        if (error.name === "QuotaExceededError") {
+          console.error("Storage limit reached. Cannot save story locally.");
+        } else {
+          console.error("Error saving story to storage", error);
+        }
+      }
     },
 
     addChapter(state, action: PayloadAction<string>) {
@@ -45,15 +58,27 @@ const storySlice = createSlice({
 
       state.currentStory.chapters.push(nextChapter);
 
-      localStorage.setItem(
-        "story",
-        JSON.stringify(state.currentStory)
-      );
+      try {
+        const userId = state.currentStory.userId || "guest";
+        const storageKey = `story_${userId}`;
+        
+        const safeData = {
+          version: "1.0",
+          data: state.currentStory
+        };
+        
+        localStorage.setItem(storageKey, JSON.stringify(safeData));
+      } catch (error: any) {
+        if (error.name === "QuotaExceededError") {
+          console.error("Storage limit reached. Cannot save story locally.");
+        } else {
+          console.error("Error saving story to storage", error);
+        }
+      }
     },
   },
 });
 
-export const { setStory, addChapter } =
-  storySlice.actions;
+export const { setStory, addChapter } = storySlice.actions;
 
 export default storySlice.reducer;
